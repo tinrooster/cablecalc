@@ -1,13 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  images: {
-    unoptimized: true,
-  },
-  webpack: (config) => {
-    config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx']
-    return config
-  }
+  reactStrictMode: true,
+  // If you're using experimental features, they should be listed here
 }
 
 module.exports = nextConfig 

@@ -10,7 +10,12 @@ const ServerRoomCalculator = () => {
   const RACK_WIDTH = 45;
   const RACK_SPACING = 50;
 
-  // Settings state
+  // All state declarations in one place at the top
+  const [sourceRack, setSourceRack] = useState("");
+  const [targetRack, setTargetRack] = useState("");
+  const [routingType, setRoutingType] = useState("aisle");
+  const [activePath, setActivePath] = useState(null);
+  const [cableLength, setCableLength] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
     // Standard measurements
@@ -18,15 +23,24 @@ const ServerRoomCalculator = () => {
     rackSpacing: 2,         // Space between racks
     rowCrossing: 8,         // Row to row via aisle
     aisleAllowance: 8,      // Aisle entry/exit
-
+    
     // Cross tray measurements
     middleTrayOverhead: 12, // Middle cross tray overhead
     endTrayOverhead: 12,    // End cross tray overhead
-
+    
+    // Cable measurements
+    verticalRun: 16,        // 8' up + 8' down
+    dressingAllowance: 3,   // Cable dressing allowance
+    slackAllowance: 3,      // Service loop/slack
+    
     // History settings
     historyEnabled: true,
     maxHistory: 10,
-    sortByFrequency: true
+    sortByFrequency: true,
+    
+    // Additional settings
+    scaleFactor: 20,        // Pixels to feet conversion
+    aisleEntryLength: 8     // Standard aisle entry length
   });
 
   // Selection history
@@ -56,15 +70,6 @@ const ServerRoomCalculator = () => {
     return [...rackHistory].sort((a, b) => 
       (rackFrequency[b] || 0) - (rackFrequency[a] || 0)
     );
-  };
-
-  // Settings
-  const settings = {
-    verticalRun: 16,        // 8' up + 8' down
-    dressingAllowance: 3,   // Cable dressing allowance
-    slackAllowance: 3,      // Service loop/slack
-    aisleEntryLength: 8,    // Standard aisle entry/exit
-    scaleFactor: 10         // Conversion factor for visual units to feet
   };
 
   // Row definitions
