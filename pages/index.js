@@ -4,6 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { SettingsPanel } from '@/components/ServerRoomCalculator/components/SettingsPanel';
+import { PathOverlay } from '@/components/ServerRoomCalculator/components/PathOverlay';
+import { ClamperConnectionIndicator } from '@/components/ServerRoomCalculator/components/ClamperConnectionIndicator';
 
 const ServerRoomCalculator = () => {
   // Visual constants
@@ -175,6 +178,15 @@ const ServerRoomCalculator = () => {
         <CardTitle>Server Room Cable Calculator</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Settings Panel */}
+        <SettingsPanel
+          settings={settings}
+          setSettings={setSettings}
+          showSettings={showSettings}
+          setShowSettings={setShowSettings}
+        />
+
+        {/* Your existing grid layout */}
         <div className="grid grid-cols-3 gap-4">
           <div>
             <Label>Source Rack</Label>
@@ -236,104 +248,63 @@ const ServerRoomCalculator = () => {
           </div>
         </div>
 
-        <svg 
-          width={800} 
-          height={600}
-          className="border border-gray-200"
-        >
-          {/* Path Indicators */}
-          {Object.entries(pathConfig).map(([key, config]) => (
-            <g key={key} transform={`translate(${config.x}, 20)`}>
-              <line 
-                x1="0" 
-                y1="0" 
-                x2="0" 
-                y2="540" 
-                stroke={key === routingType ? "#2563eb" : "#94a3b8"} 
-                strokeWidth="2"
-                strokeDasharray="4 4"
-              />
-              <text 
-                x="5" 
-                y="15" 
-                className="text-[10px]" 
-                fill={key === routingType ? "#2563eb" : "#94a3b8"}
-              >
-                {config.label}
-              </text>
-            </g>
-          ))}
+        {/* SVG Container with enhanced visualization */}
+        <div className="relative">
+          <svg 
+            width={800} 
+            height={600}
+            className="border border-gray-200"
+          >
+            {/* Your existing rack layout */}
+            {rows.map((row) => (
+              <g key={row.id} transform={`translate(0, ${row.y})`}>
+                <circle cx="25" cy="17" r="16" className="fill-none stroke-gray-400" />
+                <text x="25" y="21" textAnchor="middle" className="text-[12px] font-bold">{row.id}</text>
+                
+                {Array.from({length: row.count}, (_, i) => {
+                  const rackNum = row.reverse ? (row.start + i) : (row.start - i);
+                  const rackId = formatRackId(row.id, rackNum);
+                  return (
+                    <g 
+                      key={rackId} 
+                      transform={`translate(${50 + i * RACK_SPACING}, 0)`}
+                      onClick={() => handleRackClick(rackId)}
+                      className="cursor-pointer"
+                    >
+                      <rect 
+                        width={RACK_WIDTH} 
+                        height={35} 
+                        fill={sourceRack === rackId ? '#bfdbfe' : targetRack === rackId ? '#93c5fd' : '#f3f4f6'} 
+                        stroke="#666"
+                        className="hover:stroke-blue-500 hover:stroke-2" 
+                      />
+                      <text x={RACK_WIDTH/2} y={24} textAnchor="middle" className="text-[14px] select-none">
+                        {String(rackNum).padStart(2, '0')}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            ))}
 
-          {/* TD14/15 Special Racks */}
-          <g transform="translate(50, 40)">
-            <circle cx="-25" cy="17" r="16" className="fill-none stroke-gray-400" />
-            <text x="-25" y="20" textAnchor="middle" className="text-[12px] font-bold">TD</text>
-            <rect 
-              width={RACK_WIDTH} 
-              height={35} 
-              fill={sourceRack === 'TD15' || targetRack === 'TD15' ? '#bfdbfe' : '#e9d5ff'} 
-              stroke="#666" 
-              onClick={() => handleRackClick('TD15')}
-              className="cursor-pointer hover:stroke-blue-500 hover:stroke-2"
+            {/* New PathOverlay component */}
+            <PathOverlay
+              path={activePath}
+              routingType={routingType}
+              settings={settings}
             />
-            <text x={RACK_WIDTH/2} y={24} textAnchor="middle" className="text-[14px] select-none">15</text>
-          </g>
-          <g transform={`translate(${50 + RACK_SPACING}, 40)`}>
-            <rect 
-              width={RACK_WIDTH} 
-              height={35} 
-              fill={sourceRack === 'TD14' || targetRack === 'TD14' ? '#bfdbfe' : '#e9d5ff'} 
-              stroke="#666" 
-              onClick={() => handleRackClick('TD14')}
-              className="cursor-pointer hover:stroke-blue-500 hover:stroke-2"
+
+            {/* New ClamperConnectionIndicator */}
+            <ClamperConnectionIndicator
+              settings={settings}
+              routingType={routingType}
+              sourceRack={sourceRack}
+              targetRack={targetRack}
             />
-            <text x={RACK_WIDTH/2} y={24} textAnchor="middle" className="text-[14px] select-none">14</text>
-          </g>
+          </svg>
+        </div>
 
-          {/* Main Rack Rows */}
-          {rows.map((row) => (
-            <g key={row.id} transform={`translate(0, ${row.y})`}>
-              <circle cx="25" cy="17" r="16" className="fill-none stroke-gray-400" />
-              <text x="25" y="21" textAnchor="middle" className="text-[12px] font-bold">{row.id}</text>
-              
-              {Array.from({length: row.count}, (_, i) => {
-                const rackNum = row.reverse ? (row.start + i) : (row.start - i);
-                const rackId = formatRackId(row.id, rackNum);
-                return (
-                  <g 
-                    key={rackId} 
-                    transform={`translate(${50 + i * RACK_SPACING}, 0)`}
-                    onClick={() => handleRackClick(rackId)}
-                    className="cursor-pointer"
-                  >
-                    <rect 
-                      width={RACK_WIDTH} 
-                      height={35} 
-                      fill={sourceRack === rackId ? '#bfdbfe' : targetRack === rackId ? '#93c5fd' : '#f3f4f6'} 
-                      stroke="#666"
-                      className="hover:stroke-blue-500 hover:stroke-2" 
-                    />
-                    <text x={RACK_WIDTH/2} y={24} textAnchor="middle" className="text-[14px] select-none">
-                      {String(rackNum).padStart(2, '0')}
-                    </text>
-                  </g>
-                );
-              })}
-            </g>
-          ))}
-
-          {/* Cable Path */}
-          {activePath && (
-            <path
-              d={`M ${activePath.map(p => p.join(',')).join(' L ')}`}
-              fill="none"
-              stroke="#2563eb"
-              strokeWidth="2"
-              strokeDasharray="4"
-            />
-          )}
-        </svg>
-
+        {/* Your existing cable length display */}
         {cableLength && (
           <div className="p-4 bg-gray-100 rounded-lg">
             <h3 className="font-medium">Required Cable Length:</h3>
