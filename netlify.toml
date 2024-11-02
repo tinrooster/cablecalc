@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+[build.processing.html]
+  pretty_urls = true
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs" 
