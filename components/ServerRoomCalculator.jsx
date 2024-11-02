@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const ServerRoomCalculator = () => {
   // Visual constants
@@ -103,5 +104,116 @@ const ServerRoomCalculator = () => {
     }
   };
 
-  // Rest of the component code remains the same...
-} 
+  // Settings panel component
+  const SettingsPanel = () => (
+    <div className="mt-4 mb-6">
+      <Button 
+        onClick={() => setShowSettings(!showSettings)} 
+        variant="outline" 
+        className="w-full"
+      >
+        {showSettings ? 'Hide Settings' : 'Show Length Calculation Settings'}
+      </Button>
+      
+      {showSettings && (
+        <div className="grid grid-cols-2 gap-4 mt-4 p-4 border rounded-lg">
+          <div>
+            <Label>Vertical Run (feet)</Label>
+            <div className="flex items-center gap-2">
+              <Input 
+                type="number" 
+                value={settings.verticalRun}
+                onChange={(e) => setSettings(prev => ({
+                  ...prev,
+                  verticalRun: parseFloat(e.target.value) || 0
+                }))}
+                className="w-20"
+              />
+              <span className="text-sm text-gray-500">(Up + Down)</span>
+            </div>
+          </div>
+          
+          <div>
+            <Label>Dressing Allowance (feet)</Label>
+            <Input 
+              type="number" 
+              value={settings.dressingAllowance}
+              onChange={(e) => setSettings(prev => ({
+                ...prev,
+                dressingAllowance: parseFloat(e.target.value) || 0
+              }))}
+              className="w-20"
+            />
+          </div>
+          
+          <div>
+            <Label>Slack Allowance (feet)</Label>
+            <Input 
+              type="number" 
+              value={settings.slackAllowance}
+              onChange={(e) => setSettings(prev => ({
+                ...prev,
+                slackAllowance: parseFloat(e.target.value) || 0
+              }))}
+              className="w-20"
+            />
+          </div>
+          
+          <div>
+            <Label>Aisle Entry/Exit (feet)</Label>
+            <Input 
+              type="number" 
+              value={settings.aisleEntryLength}
+              onChange={(e) => setSettings(prev => ({
+                ...prev,
+                aisleEntryLength: parseFloat(e.target.value) || 0
+              }))}
+              className="w-20"
+            />
+          </div>
+
+          <div>
+            <Label>Scale Factor (pixels/foot)</Label>
+            <Input 
+              type="number" 
+              value={settings.scaleFactor}
+              onChange={(e) => setSettings(prev => ({
+                ...prev,
+                scaleFactor: parseFloat(e.target.value) || 1
+              }))}
+              className="w-20"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <Card className="w-full max-w-5xl">
+      <CardHeader>
+        <CardTitle>Server Room Cable Calculator</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Existing rack selection controls */}
+        <div className="grid grid-cols-3 gap-4">
+          {/* ... existing controls ... */}
+        </div>
+
+        {/* Add Settings Panel here */}
+        <SettingsPanel />
+
+        {/* Existing SVG diagram */}
+        <svg 
+          width={800} 
+          height={600}
+          className="border border-gray-200"
+        >
+          {/* ... existing SVG content ... */}
+        </svg>
+
+        {/* ... rest of the existing component ... */}
+      </CardContent>
+    </Card>
+  );
+};
