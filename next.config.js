@@ -4,6 +4,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  webpack: (config) => {
+    config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx']
+    return config
+  }
 }
 
 module.exports = nextConfig 
