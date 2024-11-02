@@ -1,0 +1,39 @@
+name: Type Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Generate types
+      run: npm run generate-types
+
+    - name: Type check
+      run: npm run type-check
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Check for missing types
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "New type files were generated. Please commit them."
+          git status
+          exit 1
+        fi 

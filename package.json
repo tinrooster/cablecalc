@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "npm run check-types && next dev",
+    "build": "npm run check-types && next build",
     "export": "next export",
-    "start": "next start"
+    "start": "next start",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "generate-types": "ts-node scripts/typeCheck.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "postinstall": "simple-git-hooks",
+    "check-types": "ts-node scripts/checkTypes.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",
@@ -25,5 +31,32 @@
     "react-dom": "latest",
     "tailwind-merge": "^2.5.4",
     "tailwindcss": "latest"
+  },
+  "devDependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "@types/node": "^22.8.6",
+    "@types/react": "^18.3.12",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "eslint": "^9.14.0",
+    "eslint-config-next": "^15.0.2",
+    "glob": "^11.0.0",
+    "lint-staged": "^15.2.10",
+    "madge": "^8.0.0",
+    "simple-git-hooks": "^2.11.1",
+    "ts-morph": "^24.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.12.2"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run type-check && npm run lint",
+    "pre-push": "npm run type-check"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "npm run type-check",
+      "npm run lint"
+    ]
   }
 }
