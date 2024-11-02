@@ -1,9 +1,9 @@
 [build]
-  command = "npm run build"
+  command = "npm install && npm run build"
   publish = "out"
 
 [build.environment]
-  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+  NEXT_TELEMETRY_DISABLED = "1"
 
 [build.processing.html]
   pretty_urls = true
