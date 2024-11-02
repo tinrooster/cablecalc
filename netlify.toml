@@ -1,12 +1,1 @@
-[build]
-  command = "npm install && npm run build"
-  publish = "out"
-
-[build.environment]
-  NEXT_TELEMETRY_DISABLED = "1"
-
-[build.processing.html]
-  pretty_urls = true
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs" 
+ 
