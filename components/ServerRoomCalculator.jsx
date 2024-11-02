@@ -307,46 +307,24 @@ const ServerRoomCalculator = () => {
   };
 
   // Settings panel component
-  const SettingsPanel = () => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-      <div className="mt-4">
-        <Button 
-          onClick={() => setIsOpen(!isOpen)} 
-          variant="outline" 
-          className="w-full"
-        >
-          {isOpen ? 'Hide Settings' : 'Show Length Calculation Settings'}
-        </Button>
-        
-        {isOpen && (
-          <div className="mt-4 p-4 border rounded-lg space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Vertical Run (feet)</Label>
-                <Input 
-                  type="number" 
-                  value={settings.verticalRun}
-                  onChange={(e) => updateSettings('verticalRun', e.target.value)}
-                  className="w-20"
-                />
-              </div>
-              <div>
-                <Label>Dressing Allowance (feet)</Label>
-                <Input 
-                  type="number" 
-                  value={settings.dressingAllowance}
-                  onChange={(e) => updateSettings('dressingAllowance', e.target.value)}
-                  className="w-20"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
+  const SettingsPanel = () => (
+    <div className="border-t pt-4 mt-4">
+      <Button 
+        variant="outline" 
+        onClick={() => setShowSettings(!showSettings)}
+        className="mb-4"
+      >
+        {showSettings ? 'Hide Settings' : 'Show Settings'}
+      </Button>
+      
+      {showSettings && (
+        <div className="space-y-4">
+          <MdfSettings />
+          <ClamperSettings />
+        </div>
+      )}
+    </div>
+  );
 
   // Add room selection controls to the UI
   const RoomSelector = () => (
@@ -820,6 +798,40 @@ const ServerRoomCalculator = () => {
       </g>
     );
   };
+
+  const RoutingPathSelector = () => (
+    <div className="space-y-2">
+      <Label>Routing Path</Label>
+      <RadioGroup 
+        value={routingType} 
+        onValueChange={setRoutingType}
+        className="space-y-1"
+      >
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="aisle" id="aisle" />
+          <Label htmlFor="aisle">Aisle Route (Default)</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="middle" id="middle" />
+          <Label htmlFor="middle">Middle Cross Tray (TH08-TC11)</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="end" id="end" />
+          <Label htmlFor="end">End Cross Tray (TK01-TC04)</Label>
+        </div>
+      </RadioGroup>
+    </div>
+  );
+
+  const getTK04Position = () => ({
+    x: 50 + (3 * RACK_SPACING), // Position for TK04
+    y: 490 // TK row Y position
+  });
+
+  const getClamperPosition = () => ({
+    x: 50, // CL01 X position
+    y: 50  // CL01 Y position
+  });
 
   return (
     <Card className="w-full max-w-5xl">
