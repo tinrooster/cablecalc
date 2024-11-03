@@ -2,6 +2,127 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  background-color: #2D2D2D;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #2D2D2D;
+}
+
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  background-color: #2D2D2D;
+}
+
+.search-input {
+  padding: 4px 8px;
+  border: 1px solid #4D4D4D;
+  background-color: #3D3D3D;
+  color: white;
+}
+
+.action-button {
+  padding: 4px 16px;
+  background-color: #0078D4;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  background-color: #106EBE;
+}
+
+.content-area {
+  margin: 8px;
+  padding: 16px;
+  background-color: white;
+  flex: 1;
+}
+
+.status-bar {
+  padding: 4px 8px;
+  background-color: #2D2D2D;
+  color: white;
+  font-size: 12px;
+}
+
+/* Custom radio button styles */
+input[type="radio"] {
+  appearance: none;
+  background-color: #fff;
+  margin: 0;
+  width: 1.5em;
+  height: 1.5em;
+  border: 2px solid #999;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+}
+
+input[type="radio"]::before {
+  content: "";
+  width: 0.75em;
+  height: 0.75em;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 0.1s ease-in-out;
+  background-color: #2563eb;
+}
+
+input[type="radio"]:checked::before {
+  transform: scale(1);
+}
+
+input[type="radio"]:checked {
+  border-color: #2563eb;
+}
+
+input[type="radio"]:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Radio Button Styles */
+.radio-group-item {
+  all: unset;
+  background-color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  border: 2px solid #999;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.radio-group-item[data-state="checked"] {
+  border-color: #2563eb;
+}
+
+.radio-group-item[data-state="checked"]::after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #2563eb;
+}
+
+/* Optional hover state */
+.radio-group-item:hover {
+  border-color: #2563eb;
+}
+
 /* Test class */
 .test-tailwind {
   @apply bg-blue-500 text-white;

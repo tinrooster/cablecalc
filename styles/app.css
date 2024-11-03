@@ -1,0 +1,8 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #2D2D2D;
+}
+
+/* Add any other specific styles we see in the inspector */ 

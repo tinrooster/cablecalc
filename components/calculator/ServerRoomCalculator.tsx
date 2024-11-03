@@ -8,6 +8,8 @@ import { PathOverlay } from './elements/PathOverlay'
 import { CableLengthDisplay } from './elements/CableLengthDisplay'
 import { MainRoomLayout } from './elements/MainRoomLayout'
 import { RoutingPathSelector } from './elements/RoutingPathSelector'
+import { RadioGroup } from '../ui/radio-group';
+import { Label } from '../ui/label';
 
 // Utils and constants
 import { calculatePath } from '@/lib/utils/calculatePath'

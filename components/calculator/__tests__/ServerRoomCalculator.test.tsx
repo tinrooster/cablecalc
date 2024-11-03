@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { ServerRoomCalculator } from '../ServerRoomCalculator'
+import { ServerRoomCalculator } from '../ServerRoomCalculator.tsx'
 
 describe('ServerRoomCalculator', () => {
   it('renders the main calculator components', () => {
