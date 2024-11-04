@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { RackPosition } from './RackPosition';
+import { PathOverlay } from './PathOverlay';
 
 // Define row configurations
 const RACK_ROWS = [
@@ -20,11 +21,28 @@ const RACK_ROWS = [
 
 export function RackGrid() {
   const { settings } = useSettings();
-  const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
+  const [sourcePosition, setSourcePosition] = useState<string | null>(null);
+  const [targetPosition, setTargetPosition] = useState<string | null>(null);
+  const [routeType, setRouteType] = useState<'default' | 'alternate'>('default');
+
+  const handlePositionClick = (positionId: string) => {
+    if (!sourcePosition) {
+      setSourcePosition(positionId);
+    } else if (!targetPosition) {
+      setTargetPosition(positionId);
+    } else {
+      // Reset and start new selection
+      setSourcePosition(positionId);
+      setTargetPosition(null);
+    }
+  };
+
+  const isSelected = (positionId: string) => 
+    positionId === sourcePosition || positionId === targetPosition;
 
   return (
     <div className="relative">
-      {/* Grid background - only show if settings.showGrid is true */}
+      {/* Grid background */}
       {settings.showGrid && (
         <div className="absolute inset-0 grid grid-cols-3 pointer-events-none">
           <div className="border-r border-dashed border-gray-300" />
@@ -32,22 +50,34 @@ export function RackGrid() {
         </div>
       )}
 
+      {/* Path Overlay */}
+      <PathOverlay 
+        sourcePosition={sourcePosition}
+        targetPosition={targetPosition}
+        routeType={routeType}
+      />
+
       {/* Rack grid */}
       <div className="relative space-y-2">
         {RACK_ROWS.map((row) => (
           <div key={row.id} className="flex items-center gap-2">
             <div className="w-8 font-medium text-gray-700">{row.id}</div>
             <div className="flex gap-1">
-              {row.positions.map((position) => (
-                <RackPosition
-                  key={`${row.id}-${position}`}
-                  id={`${row.id}-${position}`}
-                  label={position}
-                  isSelected={selectedPosition === `${row.id}-${position}`}
-                  onClick={() => setSelectedPosition(`${row.id}-${position}`)}
-                  showMeasurements={settings.showMeasurements}
-                />
-              ))}
+              {row.positions.map((position) => {
+                const positionId = `${row.id}-${position}`;
+                return (
+                  <RackPosition
+                    key={positionId}
+                    id={positionId}
+                    label={position}
+                    isSelected={isSelected(positionId)}
+                    isSource={positionId === sourcePosition}
+                    isTarget={positionId === targetPosition}
+                    showMeasurements={settings.showMeasurements}
+                    onClick={() => handlePositionClick(positionId)}
+                  />
+                );
+              })}
             </div>
           </div>
         ))}
