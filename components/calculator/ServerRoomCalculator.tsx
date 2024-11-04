@@ -4,10 +4,18 @@ import { useState } from 'react';
 import { SettingsPanel } from './settings/SettingsPanel';
 import { RackGrid } from './elements/RackGrid';
 import { SettingsProvider } from './context/SettingsContext';
+import { ExportMenu } from './elements/ExportMenu';
 
 export function ServerRoomCalculator() {
   const [showSettings, setShowSettings] = useState(false);
-  
+  const [calculationHistory, setCalculationHistory] = useState<CableCalculation[]>([]);
+  const [currentCalculation, setCurrentCalculation] = useState<CableCalculation | null>(null);
+
+  const handleCalculation = (calculation: CableCalculation) => {
+    setCurrentCalculation(calculation);
+    setCalculationHistory(prev => [...prev, calculation]);
+  };
+
   return (
     <SettingsProvider>
       <div className="space-y-6">
@@ -19,6 +27,10 @@ export function ServerRoomCalculator() {
           >
             {showSettings ? 'Hide Settings' : 'Show Settings'}
           </button>
+          <ExportMenu
+            currentCalculation={currentCalculation}
+            calculationHistory={calculationHistory}
+          />
         </div>
         
         {showSettings && <SettingsPanel />}
