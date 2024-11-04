@@ -1,135 +1,122 @@
 'use client'
 
-import { useState } from 'react';
-import { useSettings } from '../context/SettingsContext';
-import { RackPosition } from './RackPosition';
-import { PathOverlay } from './PathOverlay';
-import { CableLength } from './CableLength';
+import { useState, useCallback, useEffect } from 'react'
+import { RackPosition } from './RackPosition'
+import { RouteToggle } from './RouteToggle'
 
 // Define row configurations
 const RACK_ROWS = [
-  { id: 'TD', positions: ['15', '14'] },
-  { id: 'TX', positions: ['06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'] },
-  { id: 'TC', positions: ['13', '12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
-  { id: 'TD', positions: ['13', '12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
-  { id: 'TE', positions: ['13', '12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
-  { id: 'TF', positions: ['12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
-  { id: 'TG', positions: ['12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
-  { id: 'TH', positions: ['11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
-  { id: 'TJ', positions: ['10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
-  { id: 'TK', positions: ['10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
+  { id: 'TD1', displayId: 'TD', positions: ['15', '14'] },
+  { id: 'TX', displayId: 'TX', positions: ['06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'] },
+  { id: 'TC', displayId: 'TC', positions: ['13', '12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
+  { id: 'TD2', displayId: 'TD', positions: ['13', '12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
+  { id: 'TE', displayId: 'TE', positions: ['13', '12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
+  { id: 'TF', displayId: 'TF', positions: ['12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
+  { id: 'TG', displayId: 'TG', positions: ['12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
+  { id: 'TH', displayId: 'TH', positions: ['11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
+  { id: 'TJ', displayId: 'TJ', positions: ['10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
+  { id: 'TK', displayId: 'TK', positions: ['10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] }
 ];
 
 export function RackGrid() {
-  const { settings } = useSettings();
-  const [sourcePosition, setSourcePosition] = useState<string | null>(null);
-  const [targetPosition, setTargetPosition] = useState<string | null>(null);
-  const [routeType, setRouteType] = useState<'default' | 'alternate'>('default');
+  const [routeType, setRouteType] = useState<'aisle' | 'mid-cross' | 'end-cross'>('aisle')
+  const [sourcePosition, setSourcePosition] = useState<string | null>(null)
+  const [targetPosition, setTargetPosition] = useState<string | null>(null)
 
-  const handlePositionClick = (positionId: string) => {
-    if (!sourcePosition) {
-      setSourcePosition(positionId);
-    } else if (!targetPosition) {
-      setTargetPosition(positionId);
-    } else {
-      // Reset and start new selection
-      setSourcePosition(positionId);
-      setTargetPosition(null);
-    }
-  };
+  // Debug state changes
+  useEffect(() => {
+    console.group('State Update')
+    console.log('Route Type:', routeType)
+    console.log('Source Position:', sourcePosition)
+    console.log('Target Position:', targetPosition)
+    console.groupEnd()
+  }, [routeType, sourcePosition, targetPosition])
 
-  const isSelected = (positionId: string) => 
-    positionId === sourcePosition || positionId === targetPosition;
+  const handlePositionClick = useCallback((row: string, position: string) => {
+    console.group('Position Click')
+    console.log('Clicked:', { row, position })
+    console.log('Current State:', { sourcePosition, targetPosition, routeType })
+    
+    const positionId = `${row}-${position}`
+    
+    // Wrap state updates in requestAnimationFrame to ensure UI stays responsive
+    requestAnimationFrame(() => {
+      try {
+        if (positionId === sourcePosition) {
+          console.log('Clearing source position')
+          setSourcePosition(null)
+          setTargetPosition(null) // Clear both to avoid stuck state
+        } else if (positionId === targetPosition) {
+          console.log('Clearing target position')
+          setTargetPosition(null)
+        } else if (!sourcePosition) {
+          console.log('Setting source:', positionId)
+          setSourcePosition(positionId)
+        } else if (!targetPosition) {
+          console.log('Setting target:', positionId)
+          setTargetPosition(positionId)
+        } else {
+          console.log('Resetting and setting new source:', positionId)
+          setSourcePosition(positionId)
+          setTargetPosition(null)
+        }
+      } catch (error) {
+        console.error('Error in handlePositionClick:', error)
+        // Reset state on error
+        setSourcePosition(null)
+        setTargetPosition(null)
+      }
+    })
+    
+    console.groupEnd()
+  }, [sourcePosition, targetPosition])
 
-  const toggleRouteType = () => {
-    setRouteType(current => current === 'default' ? 'alternate' : 'default');
-  };
+  // Debug render
+  console.log('RackGrid rendering with:', { routeType, sourcePosition, targetPosition })
+
+  // Reset selections when changing route type
+  const handleRouteChange = useCallback((type: 'aisle' | 'mid-cross' | 'end-cross') => {
+    console.log('Route type changed:', type) // Debug log
+    setRouteType(type)
+    setSourcePosition(null)
+    setTargetPosition(null)
+  }, [])
 
   return (
     <div className="space-y-6">
-      {/* Route type selector and grid */}
-      <div className="relative">
-        {/* Add route type selector */}
-        <div className="mb-4">
-          <button
-            onClick={toggleRouteType}
-            className={`
-              px-4 py-2 rounded text-sm
-              ${routeType === 'default' 
-                ? 'bg-green-100 text-green-700 border border-green-500'
-                : 'bg-blue-100 text-blue-700 border border-blue-500'
-              }
-            `}
-          >
-            {routeType === 'default' ? 'Default Route' : 'Alternate Route'}
-          </button>
-        </div>
-
-        {/* Grid background */}
-        {settings.showGrid && (
-          <div className="absolute inset-0 grid grid-cols-3 pointer-events-none">
-            <div className="border-r border-dashed border-gray-300" />
-            <div className="border-r border-dashed border-gray-300" />
-          </div>
-        )}
-
-        {/* Path Overlay */}
-        <PathOverlay 
-          sourcePosition={sourcePosition}
-          targetPosition={targetPosition}
-          routeType={routeType}
+      <div className="flex justify-start">
+        <RouteToggle 
+          value={routeType} 
+          onChange={handleRouteChange}
         />
-
-        {/* Rack grid */}
-        <div className="relative space-y-2">
-          {RACK_ROWS.map((row) => (
-            <div key={row.id} className="flex items-center gap-2">
-              <div className="w-8 font-medium text-gray-700">{row.id}</div>
-              <div className="flex gap-1">
-                {row.positions.map((position) => {
-                  const positionId = `${row.id}-${position}`;
-                  return (
-                    <RackPosition
-                      key={positionId}
-                      id={positionId}
-                      label={position}
-                      isSelected={isSelected(positionId)}
-                      isSource={positionId === sourcePosition}
-                      isTarget={positionId === targetPosition}
-                      showMeasurements={settings.showMeasurements}
-                      onClick={() => handlePositionClick(positionId)}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Zone labels - only show if settings.showMeasurements is true */}
-        {settings.showMeasurements && (
-          <div className="flex justify-between text-sm text-gray-600 mt-4">
-            <div>Aisle Route (Default)</div>
-            <div>Middle Cross Tray (TH08-TC11)</div>
-            <div>End Cross Tray (TK01-TC04)</div>
-          </div>
-        )}
-
-        {/* Height measurements - only show if settings.showMeasurements is true */}
-        {settings.showMeasurements && (
-          <div className="absolute -right-24 top-1/2 transform -translate-y-1/2 text-sm text-gray-600">
-            <div>{settings.middleCrossTrayHeight}ft</div>
-            <div className="mt-4">{settings.endCrossTrayHeight}ft</div>
-          </div>
-        )}
       </div>
 
-      {/* Cable length display */}
-      <CableLength
-        sourcePosition={sourcePosition}
-        targetPosition={targetPosition}
-        routeType={routeType}
-      />
+      <div className="grid gap-4">
+        {RACK_ROWS.map((row) => (
+          <div key={row.id} className="flex items-center gap-4">
+            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 border-2 border-gray-300 rounded-full font-medium">
+              {row.displayId}
+            </div>
+            <div className="flex gap-2">
+              {row.positions.map((pos) => (
+                <RackPosition
+                  key={`${row.id}-${pos}`}
+                  row={row.id}
+                  position={pos}
+                  isSelected={
+                    sourcePosition === `${row.id}-${pos}` ||
+                    targetPosition === `${row.id}-${pos}`
+                  }
+                  isSource={sourcePosition === `${row.id}-${pos}`}
+                  onClick={() => handlePositionClick(row.id, pos)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-  );
-} 
+  )
+}
+
+
