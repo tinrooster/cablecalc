@@ -52,4 +52,13 @@ export function exportCalculations(
   const filename = `cable-calculations-${format}-${timestamp}.csv`;
   const blob = new Blob([data], { type: 'text/csv;charset=utf-8' });
   saveAs(blob, filename);
+}
+
+export function generatePreviewData(
+  calculations: CableCalculation[],
+  format: 'simple' | 'detailed'
+): string {
+  return format === 'simple' ? 
+    generateSimpleCSV(calculations) : 
+    generateDetailedCSV(calculations);
 } 
