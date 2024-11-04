@@ -53,9 +53,16 @@ EOL
 # Function to commit feature
 commit_feature() {
     local files=("$@")
-    local message="${files[-1]}" # Last argument is commit message
-    unset 'files[-1]' # Remove message from files array
+    local type="${files[-3]}"      # e.g., feat, fix, docs
+    local scope="${files[-2]}"     # e.g., ui, api, core
+    local description="${files[-1]}"
+    
+    # Remove the last 3 arguments from files array
+    unset 'files[-1]'
+    unset 'files[-2]'
+    unset 'files[-3]'
 
+    local message="${type}(${scope}): ${description}"
     echo -e "${GREEN}Committing: ${message}${NC}"
     git add "${files[@]}"
     git commit -m "$message"
