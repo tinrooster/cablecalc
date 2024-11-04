@@ -18,7 +18,35 @@ Visual style and UI is important to match the original.
 The design and UI of the app dwgtrackr is what we want for the final UI style
 This wasn't built on rev3, but the visual style and UI is what we want for the final UI style
 https://dwgtrackr.netlify.app/
-    
+
+
+# Cable Calculator Features
+
+## Core UI
+- Rack Grid Layout
+- Position Selection
+- Route Type Toggle
+
+## Path Visualization
+- Path Overlay
+- Route Highlighting
+- Selection Indicators
+
+## Settings
+- Cable Parameters
+- Route Configuration
+- Calculation Options
+
+## API Integration
+- Length Calculations
+- Route Validation
+- Error Handling
+
+## Future Features
+- Path Animation
+- Multiple Route Selection
+- Save/Load Configurations
+
 
 
 
