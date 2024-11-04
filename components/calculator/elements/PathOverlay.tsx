@@ -7,34 +7,69 @@ interface PathOverlayProps {
 }
 
 export function PathOverlay({ routeType, sourcePosition, targetPosition }: PathOverlayProps) {
-  console.log('PathOverlay rendering:', { routeType, sourcePosition, targetPosition })
+  const getCoordinates = (position: string | null) => {
+    if (!position) return null
+    
+    const row = position.slice(0, 2)
+    const pos = position.includes('-') 
+      ? position.split('-')[1]
+      : position.slice(2)
+    
+    // Adjusted measurements
+    const buttonWidth = 40    // Width of each button
+    const buttonGap = 4      // Gap between buttons
+    const leftOffset = 100   // Initial left offset
+    const topOffset = 180    // Initial top offset
+    const rowSpacing = 52    // Vertical space between rows
+    
+    // Row positions (0-based from top)
+    const rowOrder = {
+      'TD': 0,
+      'TX': 1,
+      'TC': 2,
+      'TD': 3,
+      'TE': 4,
+      'TF': 5,
+      'TG': 6,
+      'TH': 7,
+      'TJ': 8,
+      'TK': 9
+    }
+    
+    // Calculate center of button
+    const x = leftOffset + ((13 - parseInt(pos)) * (buttonWidth + buttonGap)) + (buttonWidth / 2)
+    const y = topOffset + (rowOrder[row] * rowSpacing) + (buttonWidth / 2)
+    
+    console.log(`Position ${position}:`, { x, y })
+    return { x, y }
+  }
+
+  const source = getCoordinates(sourcePosition)
+  const target = getCoordinates(targetPosition)
 
   return (
-    <div className="absolute inset-0" style={{ 
-      pointerEvents: 'none',
-      border: '1px solid red' // Temporary border to see the overlay container
-    }}>
-      <svg 
-        width="100%" 
-        height="100%" 
-        style={{ 
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          zIndex: 10,
-        }}
-      >
-        {/* Test line - should always be visible */}
-        <line
-          x1="100"
-          y1="100"
-          x2="300"
-          y2="300"
-          stroke="#E5E7EB"
-          strokeWidth="2"
-          strokeDasharray="4,4"
-        />
+    <div className="absolute inset-0" style={{ pointerEvents: 'none', zIndex: 50 }}>
+      <svg width="100%" height="100%">
+        {source && target && (
+          <>
+            {/* Path line */}
+            <line 
+              x1={source.x}
+              y1={source.y}
+              x2={target.x}
+              y2={target.y}
+              stroke="#6B7280"
+              strokeWidth="1.5"
+              strokeDasharray="4,4"
+            />
+            
+            {/* Debug dots */}
+            <circle cx={source.x} cy={source.y} r="3" fill="red" />
+            <circle cx={target.x} cy={target.y} r="3" fill="blue" />
+          </>
+        )}
       </svg>
     </div>
   )
-} 
+}
+
