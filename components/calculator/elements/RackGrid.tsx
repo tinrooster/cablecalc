@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { RackPosition } from './RackPosition';
 import { PathOverlay } from './PathOverlay';
+import { CableLength } from './CableLength';
 
 // Define row configurations
 const RACK_ROWS = [
@@ -45,80 +46,90 @@ export function RackGrid() {
   };
 
   return (
-    <div className="relative">
-      {/* Add route type selector */}
-      <div className="mb-4">
-        <button
-          onClick={toggleRouteType}
-          className={`
-            px-4 py-2 rounded text-sm
-            ${routeType === 'default' 
-              ? 'bg-green-100 text-green-700 border border-green-500'
-              : 'bg-blue-100 text-blue-700 border border-blue-500'
-            }
-          `}
-        >
-          {routeType === 'default' ? 'Default Route' : 'Alternate Route'}
-        </button>
+    <div className="space-y-6">
+      {/* Route type selector and grid */}
+      <div className="relative">
+        {/* Add route type selector */}
+        <div className="mb-4">
+          <button
+            onClick={toggleRouteType}
+            className={`
+              px-4 py-2 rounded text-sm
+              ${routeType === 'default' 
+                ? 'bg-green-100 text-green-700 border border-green-500'
+                : 'bg-blue-100 text-blue-700 border border-blue-500'
+              }
+            `}
+          >
+            {routeType === 'default' ? 'Default Route' : 'Alternate Route'}
+          </button>
+        </div>
+
+        {/* Grid background */}
+        {settings.showGrid && (
+          <div className="absolute inset-0 grid grid-cols-3 pointer-events-none">
+            <div className="border-r border-dashed border-gray-300" />
+            <div className="border-r border-dashed border-gray-300" />
+          </div>
+        )}
+
+        {/* Path Overlay */}
+        <PathOverlay 
+          sourcePosition={sourcePosition}
+          targetPosition={targetPosition}
+          routeType={routeType}
+        />
+
+        {/* Rack grid */}
+        <div className="relative space-y-2">
+          {RACK_ROWS.map((row) => (
+            <div key={row.id} className="flex items-center gap-2">
+              <div className="w-8 font-medium text-gray-700">{row.id}</div>
+              <div className="flex gap-1">
+                {row.positions.map((position) => {
+                  const positionId = `${row.id}-${position}`;
+                  return (
+                    <RackPosition
+                      key={positionId}
+                      id={positionId}
+                      label={position}
+                      isSelected={isSelected(positionId)}
+                      isSource={positionId === sourcePosition}
+                      isTarget={positionId === targetPosition}
+                      showMeasurements={settings.showMeasurements}
+                      onClick={() => handlePositionClick(positionId)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Zone labels - only show if settings.showMeasurements is true */}
+        {settings.showMeasurements && (
+          <div className="flex justify-between text-sm text-gray-600 mt-4">
+            <div>Aisle Route (Default)</div>
+            <div>Middle Cross Tray (TH08-TC11)</div>
+            <div>End Cross Tray (TK01-TC04)</div>
+          </div>
+        )}
+
+        {/* Height measurements - only show if settings.showMeasurements is true */}
+        {settings.showMeasurements && (
+          <div className="absolute -right-24 top-1/2 transform -translate-y-1/2 text-sm text-gray-600">
+            <div>{settings.middleCrossTrayHeight}ft</div>
+            <div className="mt-4">{settings.endCrossTrayHeight}ft</div>
+          </div>
+        )}
       </div>
 
-      {/* Grid background */}
-      {settings.showGrid && (
-        <div className="absolute inset-0 grid grid-cols-3 pointer-events-none">
-          <div className="border-r border-dashed border-gray-300" />
-          <div className="border-r border-dashed border-gray-300" />
-        </div>
-      )}
-
-      {/* Path Overlay */}
-      <PathOverlay 
+      {/* Cable length display */}
+      <CableLength
         sourcePosition={sourcePosition}
         targetPosition={targetPosition}
         routeType={routeType}
       />
-
-      {/* Rack grid */}
-      <div className="relative space-y-2">
-        {RACK_ROWS.map((row) => (
-          <div key={row.id} className="flex items-center gap-2">
-            <div className="w-8 font-medium text-gray-700">{row.id}</div>
-            <div className="flex gap-1">
-              {row.positions.map((position) => {
-                const positionId = `${row.id}-${position}`;
-                return (
-                  <RackPosition
-                    key={positionId}
-                    id={positionId}
-                    label={position}
-                    isSelected={isSelected(positionId)}
-                    isSource={positionId === sourcePosition}
-                    isTarget={positionId === targetPosition}
-                    showMeasurements={settings.showMeasurements}
-                    onClick={() => handlePositionClick(positionId)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Zone labels - only show if settings.showMeasurements is true */}
-      {settings.showMeasurements && (
-        <div className="flex justify-between text-sm text-gray-600 mt-4">
-          <div>Aisle Route (Default)</div>
-          <div>Middle Cross Tray (TH08-TC11)</div>
-          <div>End Cross Tray (TK01-TC04)</div>
-        </div>
-      )}
-
-      {/* Height measurements - only show if settings.showMeasurements is true */}
-      {settings.showMeasurements && (
-        <div className="absolute -right-24 top-1/2 transform -translate-y-1/2 text-sm text-gray-600">
-          <div>{settings.middleCrossTrayHeight}ft</div>
-          <div className="mt-4">{settings.endCrossTrayHeight}ft</div>
-        </div>
-      )}
     </div>
   );
 } 
