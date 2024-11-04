@@ -1,45 +1,9 @@
 'use client'
 
-import { useState } from 'react';
-
-interface Settings {
-  preset: string;
-  verticalRun: number;
-  dressingAllowance: number;
-  slackAllowance: number;
-  aisleEntryExit: number;
-  middleCrossTrayHeight: number;
-  endCrossTrayHeight: number;
-  showMeasurements: boolean;
-  showGrid: boolean;
-}
-
-const DEFAULT_SETTINGS: Settings = {
-  preset: 'Standard',
-  verticalRun: 22,
-  dressingAllowance: 11,
-  slackAllowance: 10,
-  aisleEntryExit: 6,
-  middleCrossTrayHeight: 12,
-  endCrossTrayHeight: 12,
-  showMeasurements: true,
-  showGrid: true,
-};
+import { useSettings } from '../context/SettingsContext';
 
 export function SettingsPanel() {
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
-
-  const handleChange = (field: keyof Settings, value: string | number | boolean) => {
-    setSettings(prev => ({ ...prev, [field]: value }));
-  };
-
-  const resetToStandard = () => {
-    setSettings(DEFAULT_SETTINGS);
-  };
-
-  const resetAll = () => {
-    setSettings(DEFAULT_SETTINGS);
-  };
+  const { settings, updateSettings, resetToStandard, resetAll } = useSettings();
 
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-6">
@@ -48,7 +12,7 @@ export function SettingsPanel() {
         <label className="block text-sm font-medium text-gray-700 mb-2">Preset:</label>
         <select
           value={settings.preset}
-          onChange={(e) => handleChange('preset', e.target.value)}
+          onChange={(e) => updateSettings('preset', e.target.value)}
           className="w-48 border border-gray-300 rounded px-3 py-2"
         >
           <option value="Standard">Standard</option>
@@ -65,7 +29,7 @@ export function SettingsPanel() {
             <input
               type="number"
               value={settings.verticalRun}
-              onChange={(e) => handleChange('verticalRun', Number(e.target.value))}
+              onChange={(e) => updateSettings('verticalRun', Number(e.target.value))}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
             <span className="text-xs text-gray-500">Standard up/down run</span>
@@ -76,7 +40,7 @@ export function SettingsPanel() {
             <input
               type="number"
               value={settings.dressingAllowance}
-              onChange={(e) => handleChange('dressingAllowance', Number(e.target.value))}
+              onChange={(e) => updateSettings('dressingAllowance', Number(e.target.value))}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
             <span className="text-xs text-gray-500">Cable dressing allowance</span>
@@ -87,7 +51,7 @@ export function SettingsPanel() {
             <input
               type="number"
               value={settings.slackAllowance}
-              onChange={(e) => handleChange('slackAllowance', Number(e.target.value))}
+              onChange={(e) => updateSettings('slackAllowance', Number(e.target.value))}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
             <span className="text-xs text-gray-500">Service loop allowance</span>
@@ -98,7 +62,7 @@ export function SettingsPanel() {
             <input
               type="number"
               value={settings.aisleEntryExit}
-              onChange={(e) => handleChange('aisleEntryExit', Number(e.target.value))}
+              onChange={(e) => updateSettings('aisleEntryExit', Number(e.target.value))}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
             <span className="text-xs text-gray-500">Standard aisle entry/exit</span>
@@ -116,7 +80,7 @@ export function SettingsPanel() {
             <input
               type="number"
               value={settings.middleCrossTrayHeight}
-              onChange={(e) => handleChange('middleCrossTrayHeight', Number(e.target.value))}
+              onChange={(e) => updateSettings('middleCrossTrayHeight', Number(e.target.value))}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
             <span className="text-xs text-gray-500">TH08-TC11 overhead height</span>
@@ -127,7 +91,7 @@ export function SettingsPanel() {
             <input
               type="number"
               value={settings.endCrossTrayHeight}
-              onChange={(e) => handleChange('endCrossTrayHeight', Number(e.target.value))}
+              onChange={(e) => updateSettings('endCrossTrayHeight', Number(e.target.value))}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
             <span className="text-xs text-gray-500">TK01-TC04 overhead height</span>
@@ -143,7 +107,7 @@ export function SettingsPanel() {
             <input
               type="checkbox"
               checked={settings.showMeasurements}
-              onChange={(e) => handleChange('showMeasurements', e.target.checked)}
+              onChange={(e) => updateSettings('showMeasurements', e.target.checked)}
               className="mr-2"
             />
             Show Measurements
@@ -152,7 +116,7 @@ export function SettingsPanel() {
             <input
               type="checkbox"
               checked={settings.showGrid}
-              onChange={(e) => handleChange('showGrid', e.target.checked)}
+              onChange={(e) => updateSettings('showGrid', e.target.checked)}
               className="mr-2"
             />
             Show Grid
