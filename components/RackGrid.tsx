@@ -1,64 +1,58 @@
 "use client"
 
-import { useState } from 'react';
-
-type RackPosition = {
-  row: string;  // TD, TX, TC, etc.
-  number: string;  // 01-17
-};
+import { memo } from 'react';
 
 interface RackGridProps {
-  onSourceSelect: (position: RackPosition) => void;
-  onTargetSelect: (position: RackPosition) => void;
-  selectedSource?: RackPosition;
-  selectedTarget?: RackPosition;
+  routeType: 'aisle' | 'midcross' | 'endcross';
+  sourcePosition: string | null;
+  targetPosition: string | null;
 }
 
-export function RackGrid({ 
-  onSourceSelect, 
-  onTargetSelect,
-  selectedSource,
-  selectedTarget 
+export const RackGrid = memo(function RackGrid({
+  routeType,
+  sourcePosition,
+  targetPosition
 }: RackGridProps) {
-  
-  // Define rack rows
-  const rackRows = [
-    { id: 'TD', cells: ['15', '14'] },
-    { id: 'TX', cells: ['06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'] },
-    { id: 'TC', cells: ['13', '12', '11', '10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
-    // Add other rows (TD, TE, TF, etc.)
-  ];
-
+  // SVG-only content
   return (
-    <div className="grid gap-2">
-      {rackRows.map((row) => (
-        <div key={row.id} className="flex items-center gap-2">
-          <div className="w-8 font-bold">{row.id}</div>
-          <div className="flex gap-1">
-            {row.cells.map((cell) => (
-              <button
-                key={`${row.id}-${cell}`}
-                className={`
-                  w-10 h-10 border rounded
-                  ${selectedSource?.row === row.id && selectedSource?.number === cell ? 'bg-blue-200' : ''}
-                  ${selectedTarget?.row === row.id && selectedTarget?.number === cell ? 'bg-green-200' : ''}
-                  hover:bg-gray-100
-                `}
-                onClick={() => {
-                  const position = { row: row.id, number: cell };
-                  if (!selectedSource) {
-                    onSourceSelect(position);
-                  } else if (!selectedTarget) {
-                    onTargetSelect(position);
-                  }
-                }}
-              >
-                {cell}
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
+    <g>
+      {/* Path indicators */}
+      <g>
+        <line 
+          x1={150} y1={20} 
+          x2={150} y2={560} 
+          stroke={routeType === 'endcross' ? "#2563eb" : "#94a3b8"} 
+          strokeWidth={2}
+          strokeDasharray="4 4"
+        />
+        <text x={155} y={35} className="text-[10px]" fill={routeType === 'endcross' ? "#2563eb" : "#94a3b8"}>
+          End Cross Tray (TK01-TC04)
+        </text>
+      </g>
+      <g>
+        <line 
+          x1={400} y1={20} 
+          x2={400} y2={560} 
+          stroke={routeType === 'midcross' ? "#2563eb" : "#94a3b8"} 
+          strokeWidth={2}
+          strokeDasharray="4 4"
+        />
+        <text x={405} y={35} className="text-[10px]" fill={routeType === 'midcross' ? "#2563eb" : "#94a3b8"}>
+          Middle Cross Tray (TH08-TC11)
+        </text>
+      </g>
+      <g>
+        <line 
+          x1={650} y1={20} 
+          x2={650} y2={560} 
+          stroke={routeType === 'aisle' ? "#2563eb" : "#94a3b8"} 
+          strokeWidth={2}
+          strokeDasharray="4 4"
+        />
+        <text x={655} y={35} className="text-[10px]" fill={routeType === 'aisle' ? "#2563eb" : "#94a3b8"}>
+          Aisle Route (Default)
+        </text>
+      </g>
+    </g>
   );
-} 
+}); 

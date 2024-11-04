@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { RackPosition } from './RackPosition'
 import { RouteToggle } from './RouteToggle'
-import { PathOverlay } from './PathOverlay'
 
 // Define row configurations
 const RACK_ROWS = [
@@ -18,6 +17,30 @@ const RACK_ROWS = [
   { id: 'TJ', displayId: 'TJ', positions: ['10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] },
   { id: 'TK', displayId: 'TK', positions: ['10', '09', '08', '07', '06', '05', '04', '03', '02', '01'] }
 ];
+
+// Add these constants at the top
+const PATHS = {
+  aisle: {
+    x: 650,  // Rightmost vertical line
+    label: 'Aisle Route (Default)'
+  },
+  middle: {
+    x: 400,  // Middle cross tray position
+    label: 'Middle Cross Tray (TH08-TC11)',
+    fixed: {
+      source: 'TH-08',
+      target: 'TC-11'
+    }
+  },
+  end: {
+    x: 150,   // End cross tray position
+    label: 'End Cross Tray (TK01-TC04)',
+    fixed: {
+      source: 'TK-01',
+      target: 'TC-04'
+    }
+  }
+};
 
 export function RackGrid() {
   const [routeType, setRouteType] = useState<'aisle' | 'mid-cross' | 'end-cross'>('aisle')
@@ -85,13 +108,28 @@ export function RackGrid() {
 
   return (
     <div className="relative w-full h-full">
-      <PathOverlay 
-        routeType={routeType}
-        sourcePosition={sourcePosition}
-        targetPosition={targetPosition}
-      />
-      
-      <div className="grid gap-4">
+      <svg width={800} height={600} className="border border-gray-200">
+        {/* Path Indicators - Add this before rack layout */}
+        {Object.entries(PATHS).map(([key, config]) => (
+          <g key={key} transform={`translate(${config.x}, 20)`}>
+            <line 
+              x1="0" y1="0" 
+              x2="0" y2="540" 
+              stroke={routeType === key ? "#2563eb" : "#94a3b8"} 
+              strokeWidth="2"
+              strokeDasharray="4 4"
+            />
+            <text 
+              x="5" y="15" 
+              className="text-[10px]" 
+              fill={routeType === key ? "#2563eb" : "#94a3b8"}
+            >
+              {config.label}
+            </text>
+          </g>
+        ))}
+
+        {/* Rack Layout */}
         {RACK_ROWS.map((row) => (
           <div key={row.id} className="flex items-center gap-4">
             <div className="w-8 h-8 flex items-center justify-center bg-gray-100 border-2 border-gray-300 rounded-full font-medium">
@@ -114,9 +152,86 @@ export function RackGrid() {
             </div>
           </div>
         ))}
-      </div>
+
+        {/* Active Path - This replaces the separate PathOverlay component */}
+        {sourcePosition && targetPosition && (
+          <g className="pointer-events-none">
+            {routeType === 'aisle' ? (
+              <AislePath source={sourcePosition} target={targetPosition} />
+            ) : (
+              <CrossTrayPath 
+                source={sourcePosition} 
+                target={targetPosition}
+                fixedPath={PATHS[routeType].fixed}
+                pathX={PATHS[routeType].x}
+              />
+            )}
+          </g>
+        )}
+      </svg>
     </div>
   )
+}
+
+// Path rendering components
+function AislePath({ source, target }) {
+  const sourcePt = getRackPosition(source);
+  const targetPt = getRackPosition(target);
+  const aisleX = PATHS.aisle.x;
+
+  return (
+    <path
+      d={`M ${sourcePt.x},${sourcePt.y} 
+          H ${aisleX} 
+          V ${targetPt.y} 
+          H ${targetPt.x}`}
+      stroke="#2563eb"
+      strokeWidth="2"
+      strokeDasharray="4 4"
+      fill="none"
+    />
+  );
+}
+
+function CrossTrayPath({ source, target, fixedPath, pathX }) {
+  const sourcePt = getRackPosition(source);
+  const targetPt = getRackPosition(target);
+  const fixedStart = getRackPosition(fixedPath.source);
+  const fixedEnd = getRackPosition(fixedPath.target);
+
+  return (
+    <>
+      {/* Fixed cross tray path */}
+      <path
+        d={`M ${fixedStart.x},${fixedStart.y} 
+            L ${fixedEnd.x},${fixedEnd.y}`}
+        stroke="#2563eb"
+        strokeWidth="2"
+        strokeDasharray="4 4"
+        fill="none"
+      />
+      
+      {/* Source to cross tray */}
+      <path
+        d={`M ${sourcePt.x},${sourcePt.y} 
+            H ${pathX}`}
+        stroke="#2563eb"
+        strokeWidth="2"
+        strokeDasharray="4 4"
+        fill="none"
+      />
+      
+      {/* Target to cross tray */}
+      <path
+        d={`M ${targetPt.x},${targetPt.y} 
+            H ${pathX}`}
+        stroke="#2563eb"
+        strokeWidth="2"
+        strokeDasharray="4 4"
+        fill="none"
+      />
+    </>
+  );
 }
 
 
