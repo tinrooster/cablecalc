@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react';
+import { useSettings } from '../context/SettingsContext';
 import { RackPosition } from './RackPosition';
 
 // Define row configurations
@@ -18,15 +19,18 @@ const RACK_ROWS = [
 ];
 
 export function RackGrid() {
+  const { settings } = useSettings();
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
 
   return (
     <div className="relative">
-      {/* Zone indicators */}
-      <div className="absolute inset-0 grid grid-cols-3 pointer-events-none">
-        <div className="border-r border-dashed border-gray-300" />
-        <div className="border-r border-dashed border-gray-300" />
-      </div>
+      {/* Grid background - only show if settings.showGrid is true */}
+      {settings.showGrid && (
+        <div className="absolute inset-0 grid grid-cols-3 pointer-events-none">
+          <div className="border-r border-dashed border-gray-300" />
+          <div className="border-r border-dashed border-gray-300" />
+        </div>
+      )}
 
       {/* Rack grid */}
       <div className="relative space-y-2">
@@ -41,6 +45,7 @@ export function RackGrid() {
                   label={position}
                   isSelected={selectedPosition === `${row.id}-${position}`}
                   onClick={() => setSelectedPosition(`${row.id}-${position}`)}
+                  showMeasurements={settings.showMeasurements}
                 />
               ))}
             </div>
@@ -48,12 +53,22 @@ export function RackGrid() {
         ))}
       </div>
 
-      {/* Zone labels */}
-      <div className="flex justify-between text-sm text-gray-600 mt-4">
-        <div>Aisle Route (Default)</div>
-        <div>Middle Cross Tray (TH08-TC11)</div>
-        <div>End Cross Tray (TK01-TC04)</div>
-      </div>
+      {/* Zone labels - only show if settings.showMeasurements is true */}
+      {settings.showMeasurements && (
+        <div className="flex justify-between text-sm text-gray-600 mt-4">
+          <div>Aisle Route (Default)</div>
+          <div>Middle Cross Tray (TH08-TC11)</div>
+          <div>End Cross Tray (TK01-TC04)</div>
+        </div>
+      )}
+
+      {/* Height measurements - only show if settings.showMeasurements is true */}
+      {settings.showMeasurements && (
+        <div className="absolute -right-24 top-1/2 transform -translate-y-1/2 text-sm text-gray-600">
+          <div>{settings.middleCrossTrayHeight}ft</div>
+          <div className="mt-4">{settings.endCrossTrayHeight}ft</div>
+        </div>
+      )}
     </div>
   );
 } 
