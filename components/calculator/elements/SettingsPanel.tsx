@@ -2,90 +2,69 @@
 
 import { useState } from 'react'
 
-export function SettingsPanel() {
-  const [settings, setSettings] = useState({
-    verticalRun: { value: 1, unit: 'feet' },
-    dressingAllowance: { value: 6, unit: 'inches' },
-    slackAllowance: { value: 1.5, unit: 'feet' },
-    aisleEntryExit: { value: 3, unit: 'feet' }
-  })
-
-  const handleChange = (key: string, value: number, unit: 'feet' | 'inches') => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: { value, unit }
-    }))
-  }
-
+export function SettingsPanel({ isOpen, onClose }) {
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Vertical Run
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            value={settings.verticalRun.value}
-            onChange={(e) => handleChange('verticalRun', Number(e.target.value), 'feet')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-          <span className="mt-1 inline-flex items-center text-sm text-gray-500">
-            feet
-          </span>
-        </div>
-      </div>
+    <>
+      {/* Overlay */}
+      <div 
+        className={`
+          fixed inset-0 bg-black bg-opacity-25 transition-opacity
+          ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+        `}
+        onClick={onClose}
+      />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Dressing Allowance
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            value={settings.dressingAllowance.value}
-            onChange={(e) => handleChange('dressingAllowance', Number(e.target.value), 'inches')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-          <span className="mt-1 inline-flex items-center text-sm text-gray-500">
-            inches
-          </span>
-        </div>
-      </div>
+      {/* Panel */}
+      <div 
+        className={`
+          fixed right-0 top-0 h-full w-96 
+          bg-white shadow-xl 
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+        `}
+      >
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-semibold">Settings</h2>
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </button>
+          </div>
+          
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Vertical Run
+              </label>
+              <div className="flex items-center gap-2">
+                <input 
+                  type="number" 
+                  className="w-20 p-2 border rounded" 
+                  defaultValue={1}
+                />
+                <span className="text-gray-600">feet</span>
+              </div>
+            </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Slack Allowance
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            value={settings.slackAllowance.value}
-            onChange={(e) => handleChange('slackAllowance', Number(e.target.value), 'feet')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-          <span className="mt-1 inline-flex items-center text-sm text-gray-500">
-            feet
-          </span>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Dressing Allowance
+              </label>
+              <div className="flex items-center gap-2">
+                <input 
+                  type="number" 
+                  className="w-20 p-2 border rounded" 
+                  defaultValue={6}
+                />
+                <span className="text-gray-600">inches</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Aisle Entry/Exit
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            value={settings.aisleEntryExit.value}
-            onChange={(e) => handleChange('aisleEntryExit', Number(e.target.value), 'feet')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-          <span className="mt-1 inline-flex items-center text-sm text-gray-500">
-            feet
-          </span>
-        </div>
-      </div>
-    </div>
-  )
+    </>
+  );
 } 

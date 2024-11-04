@@ -21,11 +21,11 @@ const RACK_ROWS = [
 // Add these constants at the top
 const PATHS = {
   aisle: {
-    x: 650,  // Rightmost vertical line
+    x: 50,
     label: 'Aisle Route (Default)'
   },
   middle: {
-    x: 400,  // Middle cross tray position
+    x: 250,
     label: 'Middle Cross Tray (TH08-TC11)',
     fixed: {
       source: 'TH08',
@@ -33,7 +33,7 @@ const PATHS = {
     }
   },
   end: {
-    x: 150,   // End cross tray position
+    x: 450,
     label: 'End Cross Tray (TK01-TC04)',
     fixed: {
       source: 'TK01',
@@ -48,116 +48,101 @@ export function RackGrid() {
   const [sourcePosition, setSourcePosition] = useState(null);
   const [targetPosition, setTargetPosition] = useState(null);
 
-  // All useEffects must be at the top level, before any conditionals
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (mounted) {  // Check mounted inside the effect instead
-      console.group('State Update')
-      console.log('Route Type:', routeType)
-      console.log('Source Position:', sourcePosition)
-      console.log('Target Position:', targetPosition)
-      console.groupEnd()
+  const handlePositionClick = (rowId: string, position: string) => {
+    const positionId = `${rowId}-${position}`;
+    
+    // If no source selected, set it as source
+    if (!sourcePosition) {
+      setSourcePosition(positionId);
+      return;
     }
-  }, [routeType, sourcePosition, targetPosition, mounted]);
-
-  const handlePositionClick = useCallback((row: string, position: string) => {
-    console.group('Position Click')
-    console.log('Clicked:', { row, position })
-    console.log('Current State:', { sourcePosition, targetPosition, routeType })
     
-    const positionId = `${row}-${position}`
+    // If clicking the source again, deselect it
+    if (positionId === sourcePosition) {
+      setSourcePosition(null);
+      return;
+    }
     
-    // Wrap state updates in requestAnimationFrame to ensure UI stays responsive
-    requestAnimationFrame(() => {
-      try {
-        if (positionId === sourcePosition) {
-          console.log('Clearing source position')
-          setSourcePosition(null)
-          setTargetPosition(null) // Clear both to avoid stuck state
-        } else if (positionId === targetPosition) {
-          console.log('Clearing target position')
-          setTargetPosition(null)
-        } else if (!sourcePosition) {
-          console.log('Setting source:', positionId)
-          setSourcePosition(positionId)
-        } else if (!targetPosition) {
-          console.log('Setting target:', positionId)
-          setTargetPosition(positionId)
-        } else {
-          console.log('Resetting and setting new source:', positionId)
-          setSourcePosition(positionId)
-          setTargetPosition(null)
-        }
-      } catch (error) {
-        console.error('Error in handlePositionClick:', error)
-        // Reset state on error
-        setSourcePosition(null)
-        setTargetPosition(null)
-      }
-    })
+    // If source is selected but no target, set target
+    if (!targetPosition) {
+      setTargetPosition(positionId);
+      return;
+    }
     
-    console.groupEnd()
-  }, [sourcePosition, targetPosition])
+    // If clicking the target again, deselect it
+    if (positionId === targetPosition) {
+      setTargetPosition(null);
+      return;
+    }
+    
+    // If both are selected, start over with new source
+    setSourcePosition(positionId);
+    setTargetPosition(null);
+  };
 
-  // Debug render
-  console.log('RackGrid rendering with:', { routeType, sourcePosition, targetPosition })
-
-  // Reset selections when changing route type
-  const handleRouteChange = useCallback((type: 'aisle' | 'middle' | 'end') => {
-    console.log('Route type changed:', type) // Debug log
-    setRouteType(type)
-    setSourcePosition(null)
-    setTargetPosition(null)
-  }, [])
-
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
     <div className="relative w-full h-full">
-      <svg width={800} height={600} className="border border-gray-200">
-        {/* Path Indicators */}
+      {/* Cable Path Lines - with shorter height */}
+      <svg width={800} height={500} className="absolute top-0 z-0">
         {Object.entries(PATHS).map(([key, config]) => (
           <g key={key} transform={`translate(${config.x}, 20)`}>
             <line 
               x1="0" y1="0" 
-              x2="0" y2="540" 
+              x2="0" y2="420"
               stroke={routeType === key ? "#2563eb" : "#94a3b8"} 
               strokeWidth="2"
               strokeDasharray="4 4"
             />
-            <text 
-              x="5" y="15" 
-              className="text-[10px]" 
-              fill={routeType === key ? "#2563eb" : "#94a3b8"}
-            >
-              {config.label}
-            </text>
           </g>
         ))}
       </svg>
-      
-      {/* Rack Layout - MOVED OUTSIDE SVG */}
-      <div className="absolute top-0 left-0 w-full">
+
+      {/* Interactive Cable Path Labels - above */}
+      <div className="relative z-20 h-16">
+        <svg width={800} height={60}>
+          {Object.entries(PATHS).map(([key, config]) => (
+            <g key={key} transform={`translate(${config.x}, 20)`}>
+              <foreignObject x="5" y="0" width="200" height="30">
+                <button
+                  onClick={() => setRouteType(key)}
+                  className={`
+                    text-[10px] px-2 py-1 rounded
+                    transition-colors duration-150
+                    hover:text-blue-600
+                    ${routeType === key 
+                      ? 'text-blue-500 font-medium' 
+                      : 'text-gray-600'
+                    }
+                  `}
+                >
+                  {config.label}
+                </button>
+              </foreignObject>
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      {/* Grid - middle layer */}
+      <div className="relative z-10 mt-4">
         {RACK_ROWS.map((row) => (
-          <div key={row.id} className="flex items-center gap-4 mb-2">
-            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 border-2 border-gray-300 rounded-full font-medium">
+          <div key={row.id} className="flex items-center mb-[10px]">
+            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 border-2 border-gray-300 rounded-full font-medium mr-3">
               {row.displayId}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-[2px]">
               {row.positions.map((pos) => (
                 <RackPosition
                   key={`${row.id}-${pos}`}
                   row={row.id}
                   position={pos}
-                  isSelected={
-                    sourcePosition === `${row.id}-${pos}` ||
-                    targetPosition === `${row.id}-${pos}`
-                  }
+                  isSelected={sourcePosition === `${row.id}-${pos}` || targetPosition === `${row.id}-${pos}`}
                   isSource={sourcePosition === `${row.id}-${pos}`}
                   onClick={() => handlePositionClick(row.id, pos)}
                 />
@@ -167,7 +152,7 @@ export function RackGrid() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // Path rendering components
