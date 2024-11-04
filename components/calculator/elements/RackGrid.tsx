@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { RackPosition } from './RackPosition'
 import { RouteToggle } from './RouteToggle'
+import { PathOverlay } from './PathOverlay'
 
 // Define row configurations
 const RACK_ROWS = [
@@ -83,14 +84,13 @@ export function RackGrid() {
   }, [])
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-start">
-        <RouteToggle 
-          value={routeType} 
-          onChange={handleRouteChange}
-        />
-      </div>
-
+    <div className="relative w-full h-full">
+      <PathOverlay 
+        routeType={routeType}
+        sourcePosition={sourcePosition}
+        targetPosition={targetPosition}
+      />
+      
       <div className="grid gap-4">
         {RACK_ROWS.map((row) => (
           <div key={row.id} className="flex items-center gap-4">

@@ -9,14 +9,19 @@ export function RackLayout() {
   const [sourcePosition, setSourcePosition] = useState<string | null>(null)
   const [targetPosition, setTargetPosition] = useState<string | null>(null)
 
-  console.log('RackLayout state:', { routeType, sourcePosition, targetPosition })
+  console.log('RackLayout Render:', { routeType, sourcePosition, targetPosition })
 
   return (
     <div className="relative" style={{ 
-      minHeight: '600px', 
-      width: '800px',
-      border: '1px solid blue' // Temporary border to see container
+      minHeight: '800px', 
+      width: '1000px',
+      border: '1px solid blue' // Debug border
     }}>
+      <PathOverlay 
+        routeType={routeType}
+        sourcePosition={sourcePosition}
+        targetPosition={targetPosition}
+      />
       <RackGrid 
         routeType={routeType}
         setRouteType={setRouteType}
@@ -24,11 +29,6 @@ export function RackLayout() {
         setSourcePosition={setSourcePosition}
         targetPosition={targetPosition}
         setTargetPosition={setTargetPosition}
-      />
-      <PathOverlay 
-        routeType={routeType}
-        sourcePosition={sourcePosition}
-        targetPosition={targetPosition}
       />
     </div>
   )
