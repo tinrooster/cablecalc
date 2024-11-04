@@ -1,7 +1,7 @@
 'use client'
 
 interface PathOverlayProps {
-  routeType: 'aisle' | 'mid-cross' | 'end-cross'
+  routeType: 'aisle' | 'middle' | 'end'
   sourcePosition: string | null
   targetPosition: string | null
 }

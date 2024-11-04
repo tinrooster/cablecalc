@@ -28,33 +28,40 @@ const PATHS = {
     x: 400,  // Middle cross tray position
     label: 'Middle Cross Tray (TH08-TC11)',
     fixed: {
-      source: 'TH-08',
-      target: 'TC-11'
+      source: 'TH08',
+      target: 'TC11'
     }
   },
   end: {
     x: 150,   // End cross tray position
     label: 'End Cross Tray (TK01-TC04)',
     fixed: {
-      source: 'TK-01',
-      target: 'TC-04'
+      source: 'TK01',
+      target: 'TC04'
     }
   }
 };
 
 export function RackGrid() {
-  const [routeType, setRouteType] = useState<'aisle' | 'mid-cross' | 'end-cross'>('aisle')
-  const [sourcePosition, setSourcePosition] = useState<string | null>(null)
-  const [targetPosition, setTargetPosition] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false);
+  const [routeType, setRouteType] = useState('aisle');
+  const [sourcePosition, setSourcePosition] = useState(null);
+  const [targetPosition, setTargetPosition] = useState(null);
 
-  // Debug state changes
+  // All useEffects must be at the top level, before any conditionals
   useEffect(() => {
-    console.group('State Update')
-    console.log('Route Type:', routeType)
-    console.log('Source Position:', sourcePosition)
-    console.log('Target Position:', targetPosition)
-    console.groupEnd()
-  }, [routeType, sourcePosition, targetPosition])
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {  // Check mounted inside the effect instead
+      console.group('State Update')
+      console.log('Route Type:', routeType)
+      console.log('Source Position:', sourcePosition)
+      console.log('Target Position:', targetPosition)
+      console.groupEnd()
+    }
+  }, [routeType, sourcePosition, targetPosition, mounted]);
 
   const handlePositionClick = useCallback((row: string, position: string) => {
     console.group('Position Click')
@@ -99,17 +106,21 @@ export function RackGrid() {
   console.log('RackGrid rendering with:', { routeType, sourcePosition, targetPosition })
 
   // Reset selections when changing route type
-  const handleRouteChange = useCallback((type: 'aisle' | 'mid-cross' | 'end-cross') => {
+  const handleRouteChange = useCallback((type: 'aisle' | 'middle' | 'end') => {
     console.log('Route type changed:', type) // Debug log
     setRouteType(type)
     setSourcePosition(null)
     setTargetPosition(null)
   }, [])
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <div className="relative w-full h-full">
       <svg width={800} height={600} className="border border-gray-200">
-        {/* Path Indicators - Add this before rack layout */}
+        {/* Path Indicators */}
         {Object.entries(PATHS).map(([key, config]) => (
           <g key={key} transform={`translate(${config.x}, 20)`}>
             <line 
@@ -128,10 +139,12 @@ export function RackGrid() {
             </text>
           </g>
         ))}
-
-        {/* Rack Layout */}
+      </svg>
+      
+      {/* Rack Layout - MOVED OUTSIDE SVG */}
+      <div className="absolute top-0 left-0 w-full">
         {RACK_ROWS.map((row) => (
-          <div key={row.id} className="flex items-center gap-4">
+          <div key={row.id} className="flex items-center gap-4 mb-2">
             <div className="w-8 h-8 flex items-center justify-center bg-gray-100 border-2 border-gray-300 rounded-full font-medium">
               {row.displayId}
             </div>
@@ -152,23 +165,7 @@ export function RackGrid() {
             </div>
           </div>
         ))}
-
-        {/* Active Path - This replaces the separate PathOverlay component */}
-        {sourcePosition && targetPosition && (
-          <g className="pointer-events-none">
-            {routeType === 'aisle' ? (
-              <AislePath source={sourcePosition} target={targetPosition} />
-            ) : (
-              <CrossTrayPath 
-                source={sourcePosition} 
-                target={targetPosition}
-                fixedPath={PATHS[routeType].fixed}
-                pathX={PATHS[routeType].x}
-              />
-            )}
-          </g>
-        )}
-      </svg>
+      </div>
     </div>
   )
 }

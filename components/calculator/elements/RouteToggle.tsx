@@ -1,12 +1,13 @@
 'use client'
 
-export function RouteToggle({ 
-  value, 
-  onChange 
-}: { 
-  value: 'aisle' | 'mid-cross' | 'end-cross', 
-  onChange: (type: 'aisle' | 'mid-cross' | 'end-cross') => void 
-}) {
+type RouteType = 'aisle' | 'middle' | 'end';
+
+interface RouteToggleProps {
+  value: RouteType;
+  onChange: (type: RouteType) => void;
+}
+
+export function RouteToggle({ value, onChange }: RouteToggleProps) {
   return (
     <div className="flex items-center gap-4 p-2 bg-gray-50 rounded-lg">
       <button
@@ -24,23 +25,23 @@ export function RouteToggle({
       
       <div className="flex items-center gap-2 text-sm">
         <button
-          onClick={() => onChange('mid-cross')}
+          onClick={() => onChange('middle')}
           className={`px-3 py-1.5 rounded-md transition-colors ${
-            value === 'mid-cross'
+            value === 'middle'
               ? 'bg-blue-600 text-white shadow-sm'
               : 'text-gray-600 hover:bg-white hover:shadow-sm'
           }`}
         >
-          Mid Cross
+          Middle Cross
           <span className="ml-1 text-xs opacity-75">
             (TH08-TC11)
           </span>
         </button>
         
         <button
-          onClick={() => onChange('end-cross')}
+          onClick={() => onChange('end')}
           className={`px-3 py-1.5 rounded-md transition-colors ${
-            value === 'end-cross'
+            value === 'end'
               ? 'bg-blue-600 text-white shadow-sm'
               : 'text-gray-600 hover:bg-white hover:shadow-sm'
           }`}
